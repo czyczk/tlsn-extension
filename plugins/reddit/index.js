@@ -20,12 +20,12 @@ function start() {
 }
 
 function two() {
-  const cookies = JSON.parse(Config.get('cookies'));
   const headers = JSON.parse(Config.get('headers'));
-  // console.log("TLSN cookies");
-  // console.log(JSON.stringify(cookies));
-  // console.log("TLSN headers");
-  // console.log(JSON.stringify(headers));
+  console.log("headers")
+  console.log(JSON.stringify(headers));
+  const cookies = JSON.parse(Config.get('cookies'));
+  console.log("cookies")
+  console.log(JSON.stringify(cookies));
   if (!headers['Authorization']) {
     Host.outputString(JSON.stringify(false));
     return;
@@ -41,12 +41,15 @@ function two() {
         'Accept-Encoding': 'identity',
         Connection: 'close',
       },
+      secretHeaders: [
+        `authorization: ${headers.authorization}`,
+      ],
     }),
   );
 }
 
 function three() {
-  const params = JSON.parse(Host.inputString())[1];
+  const params = JSON.parse(Host.inputString());
   const { notarize } = Host.getFunctions();
 
   if (!params) {
@@ -85,8 +88,14 @@ function config() {
         },
       ],
       hostFunctions: ['redirect', 'notarize'],
-      cookies: [],
-      headers: ['gateway.reddit.com'],
+      cookies: ['www.reddit.com', 'gateway.reddit.com', 'reddit.com'],
+      headers: ['www.reddit.com', 'gateway.reddit.com', 'reddit.com'],
+      requests: [
+        {
+          url: 'https://gateway.reddit.com/desktopapi/v1/prefs',
+          method: 'GET',
+        }
+      ]
     }),
   );
 }
