@@ -36,7 +36,7 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.4.2",
     "tailwindcss": "^3.3.3",
-    "tlsn-js": "0.1.0-alpha.5.2"
+    "tlsn-js": "file:../tlsn-js"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
@@ -89,5 +89,8 @@
     "webpack-dev-server": "^4.11.1",
     "webpack-ext-reloader": "^1.1.12",
     "zip-webpack-plugin": "^4.0.1"
+  },
+  "comments": {
+    "tlsn-js": "Original version: 0.1.0-alpha.5.2"
   }
 }

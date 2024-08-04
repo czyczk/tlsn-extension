@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { BackgroundActiontype } from '../Background/rpc';
-import { prove, verify } from 'tlsn-js';
+import { prove, set_logging_filter, verify } from 'tlsn-js';
 import { urlify } from '../../utils/misc';
 import browser from 'webextension-polyfill';
+import { LOGGING_LEVEL_DEBUG } from '../../utils/constants';
 
 const Offscreen = () => {
   useEffect(() => {
@@ -21,11 +22,13 @@ const Offscreen = () => {
             id,
             secretHeaders,
             secretResps,
+            loggingFilter = LOGGING_LEVEL_DEBUG,
           } = request.data;
 
           (async () => {
             try {
               const token = urlify(url)?.hostname || '';
+              await set_logging_filter(loggingFilter);
               const proof = await prove(url, {
                 method,
                 headers,

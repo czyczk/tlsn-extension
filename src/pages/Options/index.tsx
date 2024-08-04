@@ -27,7 +27,7 @@ export default function Options(): ReactElement {
   return (
     <div className="flex flex-col flex-nowrap flex-grow">
       <div className="flex flex-row flex-nowrap py-1 px-2 gap-2 font-bold text-base">
-        Settings
+        Settings (TDN version)
       </div>
       <div className="flex flex-col flex-nowrap py-1 px-2 gap-2">
         <div className="font-semibold">Notary API</div>
