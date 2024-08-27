@@ -35,6 +35,13 @@ export default function RequestDetail(props: Props): ReactElement {
     navigate('/notary/' + request.requestId);
   }, [request, props.requestId]);
 
+  const tdnCollect = useCallback(async () => {
+    if (!request) return;
+
+    console.log('/tdn-collect/' + props.requestId);
+    navigate('/tdn-collect/' + request.requestId);
+  }, [request, props.requestId]);
+
   if (!request) return <></>;
 
   return (
@@ -54,6 +61,12 @@ export default function RequestDetail(props: Props): ReactElement {
         <RequestDetailsHeaderTab path="/response">
           Response
         </RequestDetailsHeaderTab>
+        <button
+          className="absolute right-20 bg-primary/[0.9] text-white font-bold px-2 py-0.5 hover:bg-primary/[0.8] active:bg-primary"
+          onClick={tdnCollect}
+        >
+          TDN Collect
+        </button>
         <button
           className="absolute right-2 bg-primary/[0.9] text-white font-bold px-2 py-0.5 hover:bg-primary/[0.8] active:bg-primary"
           onClick={notarize}
@@ -120,7 +133,7 @@ function RequestPayload(props: Props): ReactElement {
   useEffect(() => {
     try {
       setUrl(new URL(data!.url));
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       if (data?.requestBody) {

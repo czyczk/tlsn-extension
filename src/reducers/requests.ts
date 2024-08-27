@@ -1,6 +1,7 @@
 import {
   type RequestLog,
   type RequestHistory,
+  type TdnRequestHistory,
 } from '../entries/Background/rpc';
 import { useSelector } from 'react-redux';
 import { AppRootState } from './index';
@@ -59,6 +60,30 @@ export const notarizeRequest = (options: RequestHistory) => async () => {
       maxTranscriptSize: options.maxTranscriptSize,
       secretHeaders: options.secretHeaders,
       secretResps: options.secretResps,
+      notaryUrl,
+      websocketProxyUrl,
+    },
+  });
+};
+
+export const tdnCollectRequest = (options: TdnRequestHistory) => async () => {
+  const notaryUrl = await get(
+    NOTARY_API_LS_KEY,
+    'http://localhost:7047',
+  );
+  const websocketProxyUrl = await get(
+    PROXY_API_LS_KEY,
+    'wss://notary.pse.dev/proxy',
+  );
+
+  chrome.runtime.sendMessage<any, string>({
+    type: BackgroundActiontype.tdn_collect_request_start,
+    data: {
+      url: options.url,
+      method: options.method,
+      headers: options.headers,
+      body: options.body,
+      maxTranscriptSize: options.maxTranscriptSize,
       notaryUrl,
       websocketProxyUrl,
     },

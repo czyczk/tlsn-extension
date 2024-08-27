@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 import { clearCache, getCacheByTabId } from './cache';
-import { addRequestHistory } from '../../reducers/history';
+import { addRequestHistory, addTdnRequestHistory } from '../../reducers/history';
 import {
   getNotaryRequests,
   addNotaryRequest,
@@ -10,6 +10,14 @@ import {
   setNotaryRequestError,
   setNotaryRequestVerification,
   removeNotaryRequest,
+  getTdnRequests,
+  addTdnRequest,
+  addTdnRequestSessionMaterials,
+  getTdnRequest,
+  setTdnRequestStatus,
+  setTdnRequestError,
+  setTdnRequestVerification,
+  removeTdnRequest,
 } from './db';
 
 export enum BackgroundActiontype {
@@ -24,6 +32,11 @@ export enum BackgroundActiontype {
   verify_proof = 'verify_proof',
   delete_prove_request = 'delete_prove_request',
   retry_prove_request = 'retry_prove_request',
+
+  tdn_collect_request_start = 'tdn_collect_request_start',
+  process_tdn_collect_request = 'process_tdn_collect_request',
+  finish_tdn_collect_request = 'finish_tdn_collect_request',
+  delete_tdn_collect_request = 'delete_tdn_collect_request',
 }
 
 export type BackgroundAction = {
@@ -69,6 +82,25 @@ export type RequestHistory = {
   secretResps?: string[];
 };
 
+export type TdnRequestHistory = {
+  id: string;
+  url: string;
+  method: string;
+  headers: { [key: string]: string };
+  body?: string;
+  maxTranscriptSize: number;
+  notaryUrl: string;
+  websocketProxyUrl: string;
+  status: '' | 'pending' | 'success' | 'error';
+  error?: any;
+  sessionMaterials?: { session: any; substrings: any };
+  requestBody?: any;
+  verification?: {
+    sent: string;
+    recv: string;
+  };
+};
+
 export const initRPC = () => {
   browser.runtime.onMessage.addListener(
     async (request, sender, sendResponse) => {
@@ -89,6 +121,10 @@ export const initRPC = () => {
           return handleRetryProveReqest(request, sendResponse);
         case BackgroundActiontype.prove_request_start:
           return handleProveRequestStart(request, sendResponse);
+        case BackgroundActiontype.finish_tdn_collect_request:
+          return handleFinishTdnCollectRequest(request, sendResponse);
+        case BackgroundActiontype.tdn_collect_request_start:
+          return handleTdnCollectRequestStart(request, sendResponse);
         default:
           break;
       }
@@ -253,6 +289,105 @@ async function handleProveRequestStart(
       websocketProxyUrl,
       secretHeaders,
       secretResps,
+    },
+  });
+
+  return sendResponse();
+}
+
+async function handleFinishTdnCollectRequest(
+  request: BackgroundAction,
+  sendResponse: (data?: any) => void,
+) {
+  const { id, sessionMaterials, error, verification } = request.data;
+
+  if (sessionMaterials) {
+    const newReq = await addTdnRequestSessionMaterials(id, sessionMaterials);
+    if (!newReq) return;
+
+    await browser.runtime.sendMessage({
+      type: BackgroundActiontype.push_action,
+      data: {
+        tabId: 'background',
+      },
+      action: addTdnRequestHistory(await getTdnRequest(id)),
+    });
+  }
+
+  if (error) {
+    const newReq = await setTdnRequestError(id, error);
+    if (!newReq) return;
+
+    await browser.runtime.sendMessage({
+      type: BackgroundActiontype.push_action,
+      data: {
+        tabId: 'background',
+      },
+      action: addTdnRequestHistory(await getTdnRequest(id)),
+    });
+  }
+
+  if (verification) {
+    const newReq = await setTdnRequestVerification(id, verification);
+    if (!newReq) return;
+
+    await browser.runtime.sendMessage({
+      type: BackgroundActiontype.push_action,
+      data: {
+        tabId: 'background',
+      },
+      action: addTdnRequestHistory(await getTdnRequest(id)),
+    });
+  }
+
+  return sendResponse();
+}
+
+async function handleTdnCollectRequestStart(
+  request: BackgroundAction,
+  sendResponse: (data?: any) => void,
+) {
+  const {
+    url,
+    method,
+    headers,
+    body,
+    maxTranscriptSize,
+    notaryUrl,
+    websocketProxyUrl,
+  } = request.data;
+
+  const { id } = await addTdnRequest(Date.now(), {
+    url,
+    method,
+    headers,
+    body,
+    maxTranscriptSize,
+    notaryUrl,
+    websocketProxyUrl,
+  });
+
+  await setTdnRequestStatus(id, 'pending');
+
+  await browser.runtime.sendMessage({
+    type: BackgroundActiontype.push_action,
+    data: {
+      tabId: 'background',
+    },
+    action: addTdnRequestHistory(await getTdnRequest(id)),
+  });
+
+  await browser.runtime.sendMessage({
+    type: BackgroundActiontype.process_tdn_collect_request,
+    data: {
+      id,
+      url,
+      method,
+      headers,
+      body,
+      maxTranscriptSize,
+      notaryUrl,
+      websocketProxyUrl,
     },
   });
 

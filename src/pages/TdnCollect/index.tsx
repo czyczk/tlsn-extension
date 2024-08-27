@@ -9,7 +9,7 @@ import React, {
   useRef,
 } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { notarizeRequest, useRequest } from '../../reducers/requests';
+import { notarizeRequest, useRequest, tdnCollectRequest } from '../../reducers/requests';
 import Icon from '../../components/Icon';
 import { urlify } from '../../utils/misc';
 import { get, NOTARY_API_LS_KEY, PROXY_API_LS_KEY } from '../../utils/storage';
@@ -17,7 +17,7 @@ import { useDispatch } from 'react-redux';
 
 const maxTranscriptSize = 16384;
 
-export default function Notarize(): ReactElement {
+export default function TdnCollect(): ReactElement {
   const params = useParams<{ requestId: string }>();
   const req = useRequest(params.requestId);
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function Notarize(): ReactElement {
   const [secretHeaders, setSecretHeaders] = useState<string[]>([]);
   const [secretResps, setSecretResps] = useState<string[]>([]);
 
-  const notarize = useCallback(async () => {
+  const tdnCollect = useCallback(async () => {
     if (!req) return;
     const hostname = urlify(req.url)?.hostname;
     const notaryUrl = await get(NOTARY_API_LS_KEY);
@@ -46,7 +46,7 @@ export default function Notarize(): ReactElement {
 
     dispatch(
       // @ts-ignore
-      notarizeRequest({
+      tdnCollectRequest({
         url: req.url,
         method: req.method,
         headers,
@@ -54,12 +54,10 @@ export default function Notarize(): ReactElement {
         maxTranscriptSize,
         notaryUrl,
         websocketProxyUrl,
-        secretHeaders,
-        secretResps,
       }),
     );
     navigate(`/history`);
-  }, [req, secretHeaders, secretResps]);
+  }, [req]);
 
   if (!req) return <></>;
 
@@ -78,7 +76,7 @@ export default function Notarize(): ReactElement {
     case 1:
       body = (
         <HideResponseStep
-          onNext={notarize}
+          onNext={tdnCollect}
           onCancel={() => setStep(0)}
           setSecretResps={setSecretResps}
         />
@@ -156,7 +154,7 @@ function RevealHeaderStep(props: {
   return (
     <div className="flex flex-col flex-nowrap flex-shrink flex-grow h-0">
       <div className="border bg-primary/[0.9] text-white border-slate-300 py-1 px-2 font-semibold">
-        Step 1 of 2: Select which request headers you want to reveal
+        Step 1 of 2: Review the request headers
       </div>
       <div className="flex-grow flex-shrink h-0 overflow-y-auto">
         <table className="border border-slate-300 border-collapse table-fixed">
@@ -173,18 +171,16 @@ function RevealHeaderStep(props: {
                     type="checkbox"
                     className="cursor-pointer"
                     onChange={(e) => changeHeaderKey(h.name, e.target.checked)}
-                    checked={!!revealed[h.name]}
+                    // checked={!!revealed[h.name]}
+                    checked={true}
+                    disabled={true}
                   />
                 </td>
                 <td className="border border-slate-300 font-bold align-top py-1 px-2 whitespace-nowrap">
                   {h.name}
                 </td>
                 <td className="border border-slate-300 break-all align-top py-1 px-2">
-                  {!!revealed[h.name]
-                    ? h.value
-                    : Array(h.value?.length || 0)
-                      .fill('*')
-                      .join('')}
+                  {h.value}
                 </td>
               </tr>
             ))}
@@ -291,14 +287,15 @@ function HideResponseStep(props: {
   return (
     <div className="flex flex-col flex-nowrap flex-shrink flex-grow h-0">
       <div className="border bg-primary/[0.9] text-white border-slate-300 py-1 px-2 font-semibold">
-        Step 2 of 2: Highlight text to show only selected text from response
+        Step 2 of 2: Review text from response
       </div>
       <div className="flex flex-col flex-grow flex-shrink h-0 overflow-y-auto p-2">
         <textarea
           ref={taRef}
           className="flex-grow textarea bg-slate-100 font-mono"
           value={shieldedText || responseText}
-          onSelect={onSelectionChange}
+          // onSelect={onSelectionChange}
+          onSelect={() => { }}
         />
       </div>
       <div className="flex flex-row justify-end p-2 gap-2 border-t">
@@ -309,7 +306,7 @@ function HideResponseStep(props: {
           className="bg-primary/[0.9] text-white font-bold hover:bg-primary/[0.8] px-2 py-0.5 active:bg-primary"
           onClick={props.onNext}
         >
-          Notarize
+          TDN Collect
         </button>
       </div>
     </div>

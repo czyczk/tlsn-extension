@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { BackgroundActiontype } from '../Background/rpc';
-import { prove, set_logging_filter, verify } from 'tlsn-js';
+import { prove, set_tlsn_logging_filter, set_tdn_logging_filter, verify, tdnCollectSessionMaterials } from 'tlsn-js';
 import { urlify } from '../../utils/misc';
 import browser from 'webextension-polyfill';
 import { LOGGING_LEVEL_DEBUG } from '../../utils/constants';
@@ -28,7 +28,7 @@ const Offscreen = () => {
           (async () => {
             try {
               const token = urlify(url)?.hostname || '';
-              await set_logging_filter(loggingFilter);
+              await set_tlsn_logging_filter(loggingFilter);
               const proof = await prove(url, {
                 method,
                 headers,
@@ -52,6 +52,54 @@ const Offscreen = () => {
               console.error(error);
               browser.runtime.sendMessage({
                 type: BackgroundActiontype.finish_prove_request,
+                data: {
+                  id,
+                  error,
+                },
+              });
+            }
+          })();
+
+          break;
+        }
+        case BackgroundActiontype.process_tdn_collect_request: {
+          const {
+            url,
+            method,
+            headers,
+            body = '',
+            maxTranscriptSize,
+            notaryUrl,
+            websocketProxyUrl,
+            id,
+            loggingFilter = LOGGING_LEVEL_DEBUG,
+          } = request.data;
+
+          (async () => {
+            try {
+              const token = urlify(url)?.hostname || '';
+              await set_tdn_logging_filter(loggingFilter);
+              const sessionMaterials = await tdnCollectSessionMaterials(url, {
+                method,
+                headers,
+                body,
+                maxTranscriptSize,
+                notaryUrl,
+                websocketProxyUrl: websocketProxyUrl + `?token=${token}`,
+              });
+
+              browser.runtime.sendMessage({
+                type: BackgroundActiontype.finish_tdn_collect_request,
+                data: {
+                  id,
+                  sessionMaterials,
+                },
+              });
+            } catch (error) {
+              console.log('i caught an error');
+              console.error(error);
+              browser.runtime.sendMessage({
+                type: BackgroundActiontype.finish_tdn_collect_request,
                 data: {
                   id,
                   error,

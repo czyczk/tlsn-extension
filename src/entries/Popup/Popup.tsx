@@ -19,6 +19,7 @@ import ProofViewer from '../../pages/ProofViewer';
 import History from '../../pages/History';
 import ProofUploader from '../../pages/ProofUploader';
 import browser from 'webextension-polyfill';
+import TdnCollect from '../../pages/TdnCollect';
 
 const Popup = () => {
   const dispatch = useDispatch();
@@ -79,6 +80,7 @@ const Popup = () => {
         <Route path="/custom/*" element={<RequestBuilder />} />
         <Route path="/options" element={<Options />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/tdn-collect/:requestId" element={<TdnCollect />} />
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
     </div>

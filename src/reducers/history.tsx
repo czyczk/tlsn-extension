@@ -1,6 +1,7 @@
 import {
   BackgroundActiontype,
   RequestHistory,
+  TdnRequestHistory,
 } from '../entries/Background/rpc';
 import { useSelector } from 'react-redux';
 import { AppRootState } from './index';
@@ -9,6 +10,9 @@ import deepEqual from 'fast-deep-equal';
 enum ActionType {
   '/history/addRequest' = '/history/addRequest',
   '/history/deleteRequest' = '/history/deleteRequest',
+
+  '/history/addTdnRequest' = '/history/addTdnRequest',
+  '/history/deleteTdnRequest' = '/history/deleteTdnRequest',
 }
 
 type Action<payload> = {
@@ -37,6 +41,13 @@ export const addRequestHistory = (request?: RequestHistory | null) => {
   };
 };
 
+export const addTdnRequestHistory = (request?: TdnRequestHistory | null) => {
+  return {
+    type: ActionType['/history/addTdnRequest'],
+    payload: request,
+  };
+};
+
 export const deleteRequestHistory = (id: string) => {
   chrome.runtime.sendMessage<any, string>({
     type: BackgroundActiontype.delete_prove_request,
@@ -45,6 +56,18 @@ export const deleteRequestHistory = (id: string) => {
 
   return {
     type: ActionType['/history/deleteRequest'],
+    payload: id,
+  };
+};
+
+export const deleteTdnRequestHistory = (id: string) => {
+  chrome.runtime.sendMessage<any, string>({
+    type: BackgroundActiontype.delete_tdn_collect_request,
+    data: id,
+  });
+
+  return {
+    type: ActionType['/history/deleteTdnRequest'],
     payload: id,
   };
 };
@@ -72,7 +95,36 @@ export default function history(
         order: newOrder,
       };
     }
+    case ActionType['/history/addTdnRequest']: {
+      const payload: TdnRequestHistory = action.payload;
+
+      if (!payload) return state;
+
+      const existing = state.map[payload.id];
+      const newMap = {
+        ...state.map,
+        [payload.id]: payload,
+      };
+      const newOrder = existing ? state.order : state.order.concat(payload.id);
+
+      return {
+        ...state,
+        map: newMap,
+        order: newOrder,
+      };
+    }
     case ActionType['/history/deleteRequest']: {
+      const reqId: string = action.payload;
+      const newMap = { ...state.map };
+      delete newMap[reqId];
+      const newOrder = state.order.filter((id) => id !== reqId);
+      return {
+        ...state,
+        map: newMap,
+        order: newOrder,
+      };
+    }
+    case ActionType['/history/deleteTdnRequest']: {
       const reqId: string = action.payload;
       const newMap = { ...state.map };
       delete newMap[reqId];
