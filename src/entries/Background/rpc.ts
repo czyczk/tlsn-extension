@@ -302,6 +302,7 @@ async function handleFinishTdnCollectRequest(
   const { id, sessionMaterials, error, verification } = request.data;
 
   if (sessionMaterials) {
+    console.log('rpc.ts|handleFinishTdnCollectRequest(); sessionMaterials');
     const newReq = await addTdnRequestSessionMaterials(id, sessionMaterials);
     if (!newReq) return;
 
@@ -315,6 +316,7 @@ async function handleFinishTdnCollectRequest(
   }
 
   if (error) {
+    console.log('rpc.ts|handleFinishTdnCollectRequest(); error');
     const newReq = await setTdnRequestError(id, error);
     if (!newReq) return;
 
@@ -328,6 +330,7 @@ async function handleFinishTdnCollectRequest(
   }
 
   if (verification) {
+    console.log('rpc.ts|handleFinishTdnCollectRequest(); verification');
     const newReq = await setTdnRequestVerification(id, verification);
     if (!newReq) return;
 
@@ -340,6 +343,7 @@ async function handleFinishTdnCollectRequest(
     });
   }
 
+  console.log('rpc.ts|handleFinishTdnCollectRequest(); done');
   return sendResponse();
 }
 

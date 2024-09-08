@@ -7,7 +7,7 @@ import {
 } from '../../utils/storage';
 
 export default function Options(): ReactElement {
-  const [notary, setNotary] = useState('https://notary.pse.dev/v0.1.0-alpha.5');
+  const [notary, setNotary] = useState('http://localhost:7047');
   const [proxy, setProxy] = useState('wss://notary.pse.dev/proxy');
   const [dirty, setDirty] = useState(false);
 

@@ -10,7 +10,6 @@ import deepEqual from 'fast-deep-equal';
 enum ActionType {
   '/history/addRequest' = '/history/addRequest',
   '/history/deleteRequest' = '/history/deleteRequest',
-
   '/history/addTdnRequest' = '/history/addTdnRequest',
   '/history/deleteTdnRequest' = '/history/deleteTdnRequest',
 }
@@ -35,6 +34,7 @@ const initialState: State = {
 };
 
 export const addRequestHistory = (request?: RequestHistory | null) => {
+  console.log('history.tsx|addRequestHistory()');
   return {
     type: ActionType['/history/addRequest'],
     payload: request,
@@ -42,6 +42,7 @@ export const addRequestHistory = (request?: RequestHistory | null) => {
 };
 
 export const addTdnRequestHistory = (request?: TdnRequestHistory | null) => {
+  console.log('history.tsx|addTdnRequestHistory()');
   return {
     type: ActionType['/history/addTdnRequest'],
     payload: request,
@@ -61,6 +62,7 @@ export const deleteRequestHistory = (id: string) => {
 };
 
 export const deleteTdnRequestHistory = (id: string) => {
+  console.log('history.tsx|deleteTdnRequestHistory');
   chrome.runtime.sendMessage<any, string>({
     type: BackgroundActiontype.delete_tdn_collect_request,
     data: id,
@@ -76,8 +78,10 @@ export default function history(
   state = initialState,
   action: Action<any>,
 ): State {
+  console.log('history.tsx|history(); action.type: ', action.type);
   switch (action.type) {
     case ActionType['/history/addRequest']: {
+      console.log('history.tsx|history(); /history/addRequest; ', action.payload);
       const payload: RequestHistory = action.payload;
 
       if (!payload) return state;
@@ -96,6 +100,7 @@ export default function history(
       };
     }
     case ActionType['/history/addTdnRequest']: {
+      console.log('history.tsx|history(); /history/addTdnRequest; ', action.payload);
       const payload: TdnRequestHistory = action.payload;
 
       if (!payload) return state;

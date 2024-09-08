@@ -30,6 +30,7 @@ export async function addTdnRequest(
   now = Date.now(),
   request: Omit<TdnRequestHistory, 'status' | 'id'>,
 ): Promise<TdnRequestHistory> {
+  console.log('db.ts|addTdnRequest');
   const id = charwise.encode(now).toString('hex');
   const newReq: TdnRequestHistory = {
     ...request,
@@ -237,5 +238,6 @@ export async function getNotaryRequest(
 export async function getTdnRequest(
   id: string,
 ): Promise<TdnRequestHistory | null> {
+  console.log('db.ts|getTdnRequest; ', id);
   return tdnHistoryDb.get(id);
 }
