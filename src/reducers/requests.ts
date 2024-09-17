@@ -6,7 +6,7 @@ import {
 import { useSelector } from 'react-redux';
 import { AppRootState } from './index';
 import deepEqual from 'fast-deep-equal';
-import { get, NOTARY_API_LS_KEY, PROXY_API_LS_KEY } from '../utils/storage';
+import { get, NOTARY_API_LS_KEY, PROXY_API_LS_KEY, TDN_PUB_KEY_CONSUMER_BASE64_LS_KEY, TDN_PWD_PROOF_LS_KEY } from '../utils/storage';
 import { BackgroundActiontype } from '../entries/Background/rpc';
 import browser from 'webextension-polyfill';
 
@@ -75,11 +75,21 @@ export const tdnCollectRequest = (options: TdnRequestHistory) => async () => {
     PROXY_API_LS_KEY,
     'wss://notary.pse.dev/proxy',
   );
+  const pwdProof = await get(
+    TDN_PWD_PROOF_LS_KEY,
+    'abc',
+  );
+  const pubKeyConsumerBase64 = await get(
+    TDN_PUB_KEY_CONSUMER_BASE64_LS_KEY,
+    'BPa8DCAo9X+M5s+lAjL6jrtBWqolWpcQTwp2OcSJ/T2zACKH8IkR/3t+m+6x+qkXNnAS9l63tmdmu/rSQmRm5b0=',
+  );
 
   chrome.runtime.sendMessage<any, string>({
     type: BackgroundActiontype.tdn_collect_request_start,
     data: {
       url: options.url,
+      pwdProof,
+      pubKeyConsumerBase64,
       method: options.method,
       headers: options.headers,
       body: options.body,

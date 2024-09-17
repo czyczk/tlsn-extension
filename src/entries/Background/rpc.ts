@@ -85,6 +85,8 @@ export type RequestHistory = {
 export type TdnRequestHistory = {
   id: string;
   url: string;
+  pwdProof: string,
+  pubKeyConsumerBase64: string,
   method: string;
   headers: { [key: string]: string };
   body?: string;
@@ -353,6 +355,8 @@ async function handleTdnCollectRequestStart(
 ) {
   const {
     url,
+    pwdProof,
+    pubKeyConsumerBase64,
     method,
     headers,
     body,
@@ -363,6 +367,8 @@ async function handleTdnCollectRequestStart(
 
   const { id } = await addTdnRequest(Date.now(), {
     url,
+    pwdProof,
+    pubKeyConsumerBase64,
     method,
     headers,
     body,
@@ -386,6 +392,8 @@ async function handleTdnCollectRequestStart(
     data: {
       id,
       url,
+      pwdProof,
+      pubKeyConsumerBase64,
       method,
       headers,
       body,

@@ -65,6 +65,8 @@ const Offscreen = () => {
         case BackgroundActiontype.process_tdn_collect_request: {
           const {
             url,
+            pwdProof,
+            pubKeyConsumerBase64,
             method,
             headers,
             body = '',
@@ -79,7 +81,7 @@ const Offscreen = () => {
             try {
               const token = urlify(url)?.hostname || '';
               await set_tdn_logging_filter(loggingFilter);
-              const sessionMaterials = await tdnCollectSessionMaterials(url, {
+              const sessionMaterials = await tdnCollectSessionMaterials(url, pwdProof, pubKeyConsumerBase64, {
                 method,
                 headers,
                 body,
