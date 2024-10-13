@@ -87,6 +87,7 @@ export type TdnRequestHistory = {
   url: string;
   pwdProof: string,
   pubKeyConsumerBase64: string,
+  evmSettlementAddrProver: string,
   method: string;
   headers: { [key: string]: string };
   body?: string;
@@ -357,6 +358,7 @@ async function handleTdnCollectRequestStart(
     url,
     pwdProof,
     pubKeyConsumerBase64,
+    evmSettlementAddrProver,
     method,
     headers,
     body,
@@ -369,6 +371,7 @@ async function handleTdnCollectRequestStart(
     url,
     pwdProof,
     pubKeyConsumerBase64,
+    evmSettlementAddrProver,
     method,
     headers,
     body,
@@ -394,6 +397,7 @@ async function handleTdnCollectRequestStart(
       url,
       pwdProof,
       pubKeyConsumerBase64,
+      evmSettlementAddrProver,
       method,
       headers,
       body,

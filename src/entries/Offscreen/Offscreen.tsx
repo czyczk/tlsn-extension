@@ -67,6 +67,7 @@ const Offscreen = () => {
             url,
             pwdProof,
             pubKeyConsumerBase64,
+            evmSettlementAddrProver,
             method,
             headers,
             body = '',
@@ -81,7 +82,7 @@ const Offscreen = () => {
             try {
               const token = urlify(url)?.hostname || '';
               await set_tdn_logging_filter(loggingFilter);
-              const sessionMaterials = await tdnCollectSessionMaterials(url, pwdProof, pubKeyConsumerBase64, {
+              const sessionMaterials = await tdnCollectSessionMaterials(url, pwdProof, pubKeyConsumerBase64, evmSettlementAddrProver, {
                 method,
                 headers,
                 body,
