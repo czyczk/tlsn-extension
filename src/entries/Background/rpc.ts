@@ -380,6 +380,10 @@ async function handleTdnCollectRequestStart(
     websocketProxyUrl,
   });
 
+  console.log('rpc.ts|pwdProof: ', pwdProof);
+  console.log('rpc.ts|pubKeyConsumerBase64: ', pubKeyConsumerBase64);
+  console.log('rpc.ts|evmSettlementAddrProver: ', evmSettlementAddrProver);
+
   await setTdnRequestStatus(id, 'pending');
 
   await browser.runtime.sendMessage({

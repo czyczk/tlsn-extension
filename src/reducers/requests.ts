@@ -6,7 +6,14 @@ import {
 import { useSelector } from 'react-redux';
 import { AppRootState } from './index';
 import deepEqual from 'fast-deep-equal';
-import { get, NOTARY_API_LS_KEY, PROXY_API_LS_KEY, TDN_EVM_ADDR_LS_KEY, TDN_PUB_KEY_CONSUMER_BASE64_LS_KEY, TDN_PWD_PROOF_LS_KEY } from '../utils/storage';
+import {
+  get,
+  NOTARY_API_LS_KEY,
+  PROXY_API_LS_KEY,
+  TDN_EVM_ADDR_LS_KEY,
+  TDN_PUB_KEY_CONSUMER_BASE64_LS_KEY,
+  TDN_PWD_PROOF_LS_KEY,
+} from '../utils/storage';
 import { BackgroundActiontype } from '../entries/Background/rpc';
 import browser from 'webextension-polyfill';
 
@@ -67,23 +74,17 @@ export const notarizeRequest = (options: RequestHistory) => async () => {
 };
 
 export const tdnCollectRequest = (options: TdnRequestHistory) => async () => {
-  const notaryUrl = await get(
-    NOTARY_API_LS_KEY,
-    'http://localhost:7047',
-  );
+  const notaryUrl = await get(NOTARY_API_LS_KEY, 'http://localhost:7047');
   const websocketProxyUrl = await get(
     PROXY_API_LS_KEY,
     'wss://notary.pse.dev/proxy',
   );
-  const pwdProof = await get(
-    TDN_PWD_PROOF_LS_KEY,
-    'abc',
-  );
+  const pwdProof = await get(TDN_PWD_PROOF_LS_KEY, 'abc');
   const pubKeyConsumerBase64 = await get(
     TDN_PUB_KEY_CONSUMER_BASE64_LS_KEY,
-    'BPa8DCAo9X+M5s+lAjL6jrtBWqolWpcQTwp2OcSJ/T2zACKH8IkR/3t+m+6x+qkXNnAS9l63tmdmu/rSQmRm5b0=',
+    'BHhNtkKWjJoc9AvKkvfPEHvqBd/zYBi0G5efy2m9MrFQXQDy4RSvJyz4LT4Fcqj9RSbxGWK5asGlDJZgg34rW4Y=',
   );
-  const evmAddr = await get(
+  const evmSettlementAddrProver = await get(
     TDN_EVM_ADDR_LS_KEY,
     '0xeeb89d376693a94773da6baa0eb5922aebaf1f82',
   );
@@ -94,7 +95,7 @@ export const tdnCollectRequest = (options: TdnRequestHistory) => async () => {
       url: options.url,
       pwdProof,
       pubKeyConsumerBase64,
-      evmAddr,
+      evmSettlementAddrProver,
       method: options.method,
       headers: options.headers,
       body: options.body,

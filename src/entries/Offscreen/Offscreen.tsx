@@ -1,6 +1,12 @@
 import React, { useEffect } from 'react';
 import { BackgroundActiontype } from '../Background/rpc';
-import { prove, set_tlsn_logging_filter, set_tdn_logging_filter, verify, tdnCollectSessionMaterials } from 'tlsn-js';
+import {
+  prove,
+  set_tlsn_logging_filter,
+  set_tdn_logging_filter,
+  verify,
+  tdnCollectSessionMaterials,
+} from 'tlsn-js';
 import { urlify } from '../../utils/misc';
 import browser from 'webextension-polyfill';
 import { LOGGING_LEVEL_DEBUG } from '../../utils/constants';
@@ -48,7 +54,7 @@ const Offscreen = () => {
                 },
               });
             } catch (error) {
-              console.log('i caught an error');
+              console.log('process_prove_request: i caught an error');
               console.error(error);
               browser.runtime.sendMessage({
                 type: BackgroundActiontype.finish_prove_request,
@@ -82,14 +88,20 @@ const Offscreen = () => {
             try {
               const token = urlify(url)?.hostname || '';
               await set_tdn_logging_filter(loggingFilter);
-              const sessionMaterials = await tdnCollectSessionMaterials(url, pwdProof, pubKeyConsumerBase64, evmSettlementAddrProver, {
-                method,
-                headers,
-                body,
-                maxTranscriptSize,
-                notaryUrl,
-                websocketProxyUrl: websocketProxyUrl + `?token=${token}`,
-              });
+              const sessionMaterials = await tdnCollectSessionMaterials(
+                url,
+                pwdProof,
+                pubKeyConsumerBase64,
+                evmSettlementAddrProver,
+                {
+                  method,
+                  headers,
+                  body,
+                  maxTranscriptSize,
+                  notaryUrl,
+                  websocketProxyUrl: websocketProxyUrl + `?token=${token}`,
+                },
+              );
 
               browser.runtime.sendMessage({
                 type: BackgroundActiontype.finish_tdn_collect_request,
@@ -99,7 +111,10 @@ const Offscreen = () => {
                 },
               });
             } catch (error) {
-              console.log('i caught an error');
+              console.log('process_tdn_collect_request: i caught an error');
+              console.log('pwdProof: ', pwdProof);
+              console.log('pubKeyConsumerBase64: ', pubKeyConsumerBase64);
+              console.log('evmSettlementAddrProver: ', evmSettlementAddrProver);
               console.error(error);
               browser.runtime.sendMessage({
                 type: BackgroundActiontype.finish_tdn_collect_request,
